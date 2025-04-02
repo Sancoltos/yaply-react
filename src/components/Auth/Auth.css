@@ -129,3 +129,33 @@ p a:hover {
 .auth-toggle:hover {
     text-decoration: none;
 }
+
+.link-button {
+    background: none;
+    border: none;
+    color: #ff7be9;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+}
+
+.link-button:hover {
+    text-decoration: none;
+}
+
+.auth-toggle {
+    background: none;
+    border: none;
+    color: #ff7be9;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+    font-size: 14px;
+  }
+  
+  .auth-toggle:hover {
+    text-decoration: none;
+    color: #ff1493;
+  }

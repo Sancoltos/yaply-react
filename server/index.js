@@ -4,6 +4,7 @@ const { Server } = require("socket.io");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const server = http.createServer(app);
@@ -16,64 +17,93 @@ const io = new Server(server, {
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
-// In-memory storage (for simplicity - use a database in production)
-let users = {}; // { username: { password: hashedPassword, avatar: filename } }
-let channels = { 
-    general: [], 
-    sports: [], 
-    "video-games": [],
-    "deep-talks": [],
-    anime: [],
-    "study-zone": [],
-    movies: [],
-    novels: [],
-    fashion: [],
-    announcement: [],
-    advertising: [],
-    programming: []
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+});
+
+// Database simulation
+const users = new Map();
+const channels = {
+    general: [], sports: [], "video-games": [], "deep-talks": [],
+    anime: [], "study-zone": [], politics: [], movies: [],
+    novels: [], fashion: [], announcement: [], advertising: [], programming: []
 };
+const onlineUsers = new Map();
 
-let onlineUsers = new Map(); // Store online users and their avatars
+// Ensure avatar directory exists
+const avatarDir = path.join(__dirname, '../public/avatars');
+if (!fs.existsSync(avatarDir)) {
+    fs.mkdirSync(avatarDir, { recursive: true });
+    fs.writeFileSync(path.join(avatarDir, 'manifest.json'), JSON.stringify({
+        avatars: ["default-avatar.png"]
+    }));
+}
 
-// User signup endpoint
+// Auth Endpoints
 app.post("/signup", async (req, res) => {
-    const { username, password, avatar } = req.body;
+    console.log("Signup request received:", req.body);
+    try {
+        const { username, password, avatar = 'default-avatar.png' } = req.body;
+        
+        if (!username || !password) {
+            return res.status(400).json({ success: false, message: "Username and password required" });
+        }
 
-    if (users[username]) {
-        return res.status(400).send({ message: "Username already exists!" });
-    }
+        if (users.has(username)) {
+            return res.status(409).json({ success: false, message: "Username taken" });
+        }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    users[username] = {
-        password: hashedPassword,
-        avatar: avatar || 'default-avatar.png'
-    };
-    res.send({ message: "User registered successfully!", username });
-});
-
-// User login endpoint
-app.post("/login", async (req, res) => {
-    const { username, password } = req.body;
-
-    if (!users[username]) {
-        return res.status(404).send({ message: "User not found!" });
-    }
-
-    const isValid = await bcrypt.compare(password, users[username].password);
-    if (isValid) {
-        return res.send({ 
-            message: "Login successful!", 
+        const hashedPassword = await bcrypt.hash(password, 10);
+        users.set(username, { password: hashedPassword, avatar });
+        
+        res.status(201).json({ 
+            success: true, 
+            message: "Signup successful",
             username,
-            avatar: users[username].avatar 
+            avatar
         });
-    } else {
-        return res.status(401).send({ message: "Invalid credentials!" });
+    } catch (error) {
+        console.error("Signup error:", error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 });
 
-// Socket.io real-time communication
+app.post("/login", async (req, res) => {
+    console.log("Login request received:", req.body);
+    try {
+        const { username, password } = req.body;
+        
+        if (!username || !password) {
+            return res.status(400).json({ success: false, message: "Username and password required" });
+        }
+
+        const user = users.get(username);
+        if (!user) {
+            return res.status(401).json({ success: false, message: "Invalid credentials" });
+        }
+
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) {
+            return res.status(401).json({ success: false, message: "Invalid credentials" });
+        }
+
+        res.json({ 
+            success: true,
+            message: "Login successful",
+            username,
+            avatar: user.avatar
+        });
+    } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
+// Socket.io
 io.on("connection", (socket) => {
     let currentUser = null;
 
@@ -93,58 +123,9 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("joinChannel", (channel) => {
-        // Leave all other channels
-        socket.rooms.forEach(room => {
-            if (room !== socket.id) {
-                socket.leave(room);
-            }
-        });
-        
-        socket.join(channel);
-        const channelMessages = channels[channel] || [];
-        socket.emit("channelMessages", channelMessages);
-    });
-
-    socket.on("sendMessage", (data) => {
-        const { channel, message, username } = data;
-        
-        const messageObj = {
-            username,
-            message,
-            timestamp: new Date().toISOString()
-        };
-
-        // Store message
-        channels[channel] = channels[channel] || [];
-        channels[channel].push(messageObj);
-        
-        // Limit stored messages (optional)
-        if (channels[channel].length > 100) {
-            channels[channel] = channels[channel].slice(-100);
-        }
-
-        // Broadcast to everyone in the channel
-        io.to(channel).emit("newMessage", messageObj);
-    });
-
-    socket.on("private-message", (data) => {
-        const targetUser = onlineUsers.get(data.to);
-        if (targetUser) {
-            io.to(targetUser.socketId).emit("private-message", {
-                from: currentUser,
-                message: data.message
-            });
-        }
-    });
+    // ... (rest of your socket.io code)
 });
 
-// Serve frontend
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Start the server
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
