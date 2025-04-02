@@ -1,23 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import Auth from './components/Auth/Auth';
+import Chat from './components/Chat/Chat';
+import './App.css'; // This will be minimal - most styles are in component CSS files
 
 function App() {
+  const [currentUser, setCurrentUser] = useState(
+    localStorage.getItem('currentUser')
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-container">
+      {currentUser ? (
+        <Chat currentUser={currentUser} />
+      ) : (
+        <Auth setCurrentUser={setCurrentUser} />
+      )}
     </div>
   );
 }
