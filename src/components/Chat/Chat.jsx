@@ -15,42 +15,70 @@ const Chat = ({ currentUser, onLogout }) => {
   const userAvatar = localStorage.getItem('userAvatar') || 'default-avatar.png';
 
   useEffect(() => {
-    socketRef.current = io();
+    console.log('Initializing socket connection');
+    socketRef.current = io('http://localhost:3001', {
+      transports: ['websocket'],
+      reconnection: true,
+      reconnectionAttempts: 5
+    });
+    
+    console.log('Emitting user-connected event');
     socketRef.current.emit('user-connected', {
       username: currentUser,
       avatar: userAvatar
     });
 
+    socketRef.current.on('connect', () => {
+      console.log('Socket connected');
+    });
+
+    socketRef.current.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+    });
+
     socketRef.current.on('channelMessages', (messages) => {
-      setMessages(messages);
+      console.log('Received channel messages:', messages);
+      setMessages(messages || []);
     });
 
     socketRef.current.on('newMessage', (message) => {
-      setMessages(prev => [...prev, message]);
+      console.log('Received new message:', message);
+      if (message.channel === currentChannel) {
+        console.log('Adding message to current channel');
+        setMessages(prev => [...prev, message]);
+      } else {
+        console.log('Message is for different channel:', message.channel);
+      }
     });
 
     socketRef.current.on('update-online-users', (users) => {
+      console.log('Received online users update:', users);
       setOnlineUsers(users);
     });
 
     return () => {
+      console.log('Cleaning up socket connection');
       socketRef.current.disconnect();
     };
   }, [currentUser, userAvatar]);
 
   useEffect(() => {
     if (isInitialLoad) {
+      console.log('Initial load, scrolling to bottom');
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
         setIsInitialLoad(false);
       }, 100);
     } else {
+      console.log('New message, scrolling to bottom');
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isInitialLoad]);
 
   const joinChannel = (channel) => {
+    console.log('Joining channel:', channel);
     setCurrentChannel(channel);
+    setMessages([]); // Clear messages when changing channels
     socketRef.current.emit('joinChannel', channel);
   };
 
@@ -64,6 +92,7 @@ const Chat = ({ currentUser, onLogout }) => {
       username: currentUser
     };
 
+    console.log('Sending message:', message);
     socketRef.current.emit('sendMessage', message);
     setInputMessage('');
   };

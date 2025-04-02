@@ -10,8 +10,12 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*",
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST"]
     },
+    transports: ['websocket', 'polling'],
+    pingTimeout: 60000,
+    pingInterval: 25000
 });
 
 // Middleware
@@ -106,24 +110,65 @@ app.post("/login", async (req, res) => {
 // Socket.io
 io.on("connection", (socket) => {
     let currentUser = null;
+    let currentChannel = 'general';
 
     socket.on("user-connected", (data) => {
+        console.log("User connected:", data);
         currentUser = data.username;
         onlineUsers.set(currentUser, {
             socketId: socket.id,
             avatar: data.avatar || 'default-avatar.png'
         });
         io.emit("update-online-users", Array.from(onlineUsers.entries()));
+        
+        // Send current channel messages to the user
+        console.log("Sending initial messages for channel:", currentChannel);
+        socket.emit("channelMessages", channels[currentChannel]);
     });
 
     socket.on("disconnect", () => {
+        console.log("User disconnected:", currentUser);
         if (currentUser) {
             onlineUsers.delete(currentUser);
             io.emit("update-online-users", Array.from(onlineUsers.entries()));
         }
     });
 
-    // ... (rest of your socket.io code)
+    socket.on("joinChannel", (channel) => {
+        console.log("User joining channel:", currentUser, "->", channel);
+        currentChannel = channel;
+        socket.emit("channelMessages", channels[channel]);
+    });
+
+    socket.on("sendMessage", (message) => {
+        console.log("Received message:", message);
+        if (!currentUser) {
+            console.log("No current user, ignoring message");
+            return;
+        }
+
+        const newMessage = {
+            username: currentUser,
+            message: message.message,
+            timestamp: new Date().toISOString(),
+            channel: message.channel
+        };
+
+        console.log("Creating new message:", newMessage);
+
+        // Add message to the channel
+        if (!channels[message.channel]) {
+            console.log("Channel doesn't exist:", message.channel);
+            return;
+        }
+
+        channels[message.channel].push(newMessage);
+        console.log("Message added to channel. Current messages:", channels[message.channel]);
+
+        // Broadcast the message to all connected clients
+        console.log("Broadcasting message to all clients");
+        io.emit("newMessage", newMessage);
+    });
 });
 
 const PORT = process.env.PORT || 3001;
