@@ -30,6 +30,7 @@ const Chat = ({ currentUser, onLogout }) => {
 
     socketRef.current.on('connect', () => {
       console.log('Socket connected');
+      socketRef.current.emit('joinChannel', currentChannel);
     });
 
     socketRef.current.on('connect_error', (error) => {
@@ -46,8 +47,6 @@ const Chat = ({ currentUser, onLogout }) => {
       if (message.channel === currentChannel) {
         console.log('Adding message to current channel');
         setMessages(prev => [...prev, message]);
-      } else {
-        console.log('Message is for different channel:', message.channel);
       }
     });
 
@@ -60,7 +59,7 @@ const Chat = ({ currentUser, onLogout }) => {
       console.log('Cleaning up socket connection');
       socketRef.current.disconnect();
     };
-  }, [currentUser, userAvatar]);
+  }, [currentUser, userAvatar, currentChannel]);
 
   useEffect(() => {
     if (isInitialLoad) {
@@ -78,7 +77,6 @@ const Chat = ({ currentUser, onLogout }) => {
   const joinChannel = (channel) => {
     console.log('Joining channel:', channel);
     setCurrentChannel(channel);
-    setMessages([]); // Clear messages when changing channels
     socketRef.current.emit('joinChannel', channel);
   };
 

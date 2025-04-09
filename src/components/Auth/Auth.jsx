@@ -7,7 +7,6 @@ const Auth = ({ setCurrentUser }) => {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
 
   useEffect(() => {
-    // Clear any existing login state
     localStorage.removeItem('currentUser');
     localStorage.removeItem('userAvatar');
 
