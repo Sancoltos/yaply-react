@@ -18,18 +18,18 @@ const io = new Server(server, {
     pingInterval: 25000
 });
 
-// Middleware
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Debug middleware to log all requests
+
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     next();
 });
 
-// Database simulation
+
 const users = new Map();
 const channels = {
     general: [], sports: [], "video-games": [], "deep-talks": [],
@@ -38,7 +38,7 @@ const channels = {
 };
 const onlineUsers = new Map();
 
-// Ensure avatar directory exists
+
 const avatarDir = path.join(__dirname, '../public/avatars');
 if (!fs.existsSync(avatarDir)) {
     fs.mkdirSync(avatarDir, { recursive: true });
@@ -47,7 +47,6 @@ if (!fs.existsSync(avatarDir)) {
     }));
 }
 
-// Auth Endpoints
 app.post("/signup", async (req, res) => {
     console.log("Signup request received:", req.body);
     try {
@@ -107,7 +106,6 @@ app.post("/login", async (req, res) => {
     }
 });
 
-// Socket.io
 io.on("connection", (socket) => {
     let currentUser = null;
     let currentChannel = 'general';
@@ -121,7 +119,6 @@ io.on("connection", (socket) => {
         });
         io.emit("update-online-users", Array.from(onlineUsers.entries()));
         
-        // Send current channel messages to the user
         console.log("Sending initial messages for channel:", currentChannel);
         socket.emit("channelMessages", channels[currentChannel]);
     });
@@ -156,7 +153,6 @@ io.on("connection", (socket) => {
 
         console.log("Creating new message:", newMessage);
 
-        // Add message to the channel
         if (!channels[message.channel]) {
             console.log("Channel doesn't exist:", message.channel);
             return;
@@ -165,7 +161,7 @@ io.on("connection", (socket) => {
         channels[message.channel].push(newMessage);
         console.log("Message added to channel. Current messages:", channels[message.channel]);
 
-        // Broadcast the message to all connected clients
+        
         console.log("Broadcasting message to all clients");
         io.emit("newMessage", newMessage);
     });

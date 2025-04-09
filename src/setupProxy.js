@@ -8,12 +8,12 @@ module.exports = function(app) {
       target: 'http://localhost:3001',
       changeOrigin: true,
       pathRewrite: {
-        '^/api': '' // Remove /api prefix when forwarding to server
+        '^/api': '' 
       }
     })
   );
   
-  // Handle avatar requests
+
   app.use(
     '/avatars',
     createProxyMiddleware({
@@ -22,7 +22,7 @@ module.exports = function(app) {
     })
   );
   
-  // Handle socket.io connections
+  
   app.use(
     '/socket.io',
     createProxyMiddleware({

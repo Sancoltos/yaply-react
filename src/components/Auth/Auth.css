@@ -4,6 +4,7 @@ body {
     min-height: 100vh;
     background: #121212;
     font-family: Arial, sans-serif;
+    overflow: hidden;
 }
 
 .login-container {
@@ -13,17 +14,30 @@ body {
     box-shadow: 0px 5px 40px rgba(255, 20, 147, 0.7);
     text-align: center;
     width: 300px;
-    margin: 50px auto; /* This does the centering magic */
+    margin: 50px auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
 
 .logo {
-    display: block; /* Makes the logo respect margin auto */
+    display: block; 
     max-width: 100%;
     height: auto;
-    margin: 0 auto 20px auto; /* Centers logo horizontally */
+    margin: 0 auto 20px auto; 
 }
 
-/* Form styles */
+
 form {
     display: flex;
     flex-direction: column;
@@ -33,7 +47,7 @@ form {
 form h2 {
     margin-bottom: 10px;
     font-size: 24px;
-    color: #ff7be9; /* Pink text */
+    color: #ff7be9;
 }
 
 input {
@@ -49,7 +63,7 @@ button {
     padding: 10px;
     font-size: 16px;
     font-weight: bold;
-    background: #ff1493; /* Bright pink */
+    background: #ff1493; 
     color: white;
     border: none;
     border-radius: 5px;
@@ -57,7 +71,7 @@ button {
 }
 
 button:hover {
-    background: #e01282; /* Slightly darker pink on hover */
+    background: #e01282; 
 }
 
 p {
@@ -78,7 +92,6 @@ p a:hover {
     display: none;
 }
 
-/* Add avatar selection styles */
 .avatar-selection {
     margin: 15px 0;
 }

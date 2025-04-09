@@ -6,7 +6,7 @@ import './App.css';
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showUi, setShowUi] = useState(false); // New state for UI synchronization
+  const [showUi, setShowUi] = useState(false); 
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -21,7 +21,6 @@ function App() {
         setCurrentUser(null);
       }
       
-      // Wait for all elements to be ready before showing UI
       setTimeout(() => {
         setLoading(false);
         setShowUi(true);

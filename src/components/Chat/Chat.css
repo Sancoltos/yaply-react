@@ -1,12 +1,11 @@
-/* Add to the top of the file */
 .chat-app {
     display: flex;
     width: 100%;
     height: 100vh;
     overflow: hidden;
-  }
-  
-  .sidebar {
+}
+
+.sidebar {
     width: 240px;
     min-width: 240px;
     background-color: #1c1c2e;
@@ -16,11 +15,11 @@
     height: 100vh;
     position: relative;
     overflow: hidden;
-    flex-shrink: 0; /* Prevent sidebar from shrinking */
-    z-index: 2; /* Ensure sidebar stays above main content */
-  }
-  
-  .chat-container {
+    flex-shrink: 0;
+    z-index: 2;
+}
+
+.chat-container {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -29,15 +28,14 @@
     overflow: hidden;
     position: relative;
     z-index: 1;
-  }
-  
-  /* Add this new rule */
-  .layout-container {
+}
+
+.layout-container {
     display: flex;
     width: 100%;
     height: 100vh;
     position: relative;
-  }
+}
 
 body {
     margin: 0;
@@ -188,18 +186,17 @@ body {
 }
 
 .logo-container img.sidebar-logo {
-    max-width: 180px;  /* Adjust as needed */
-    max-height: 100px;  /* Adjust as needed */
+    max-width: 180px;
+    max-height: 100px;
     width: auto;
     height: auto;
     display: block;
-    margin: 0 auto;    /* Centers the logo */
+    margin: 0 auto;
 }
 
-/* If you want to make the container match */
 .logo-container {
-    padding: 15px 20px; /* Reduced from 20px */
-    height: 90px;       /* Fixed height */
+    padding: 15px 20px;
+    height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
