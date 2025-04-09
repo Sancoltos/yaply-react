@@ -111,7 +111,7 @@ const Chat = ({ currentUser, onLogout }) => {
         <div className="chat-header">
           <div className="online-user current-user">
             <img 
-              src={`/avatars/${userAvatar}`} 
+              src={`/images/avatars/${userAvatar}`} 
               alt={currentUser}
               onError={(e) => {
                 e.target.onerror = null;
@@ -124,7 +124,7 @@ const Chat = ({ currentUser, onLogout }) => {
             username !== currentUser && (
               <div key={username} className="online-user">
                 <img 
-                  src={`/avatars/${userData.avatar || 'default-avatar.png'}`} 
+                  src={`/images/avatars/${userData.avatar || 'default-avatar.png'}`} 
                   alt={username}
                   onError={(e) => {
                     e.target.onerror = null;

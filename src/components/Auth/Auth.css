@@ -4,6 +4,7 @@ body {
     min-height: 100vh;
     background: #121212;
     font-family: Arial, sans-serif;
+    overflow: hidden;
 }
 
 .login-container {
@@ -13,7 +14,20 @@ body {
     box-shadow: 0px 5px 40px rgba(255, 20, 147, 0.7);
     text-align: center;
     width: 300px;
-    margin: 50px auto; 
+    margin: 50px auto;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
 
 .logo {

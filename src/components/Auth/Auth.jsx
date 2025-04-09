@@ -12,7 +12,7 @@ const Auth = ({ setCurrentUser }) => {
 
     const loadAvatars = async () => {
       try {
-        const response = await fetch('/avatars/manifest.json');
+        const response = await fetch('/images/avatars/manifest.json');
         if (!response.ok) throw new Error('Failed to load avatars');
         const data = await response.json();
         setAvatars(data.avatars || ['default-avatar.png']);
@@ -72,7 +72,13 @@ const Auth = ({ setCurrentUser }) => {
             <button 
               type="button" 
               className="auth-toggle"
-              onClick={() => setShowSignup(true)}
+              onClick={() => {
+                setShowSignup(true);
+                window.scrollTo({
+                  top: document.documentElement.scrollHeight,
+                  behavior: 'smooth'
+                });
+              }}
             >
               Sign Up
             </button>
@@ -89,7 +95,7 @@ const Auth = ({ setCurrentUser }) => {
               {avatars.map(avatar => (
                 <img
                 key={avatar}
-                src={`/avatars/${avatar}`}
+                src={`/images/avatars/${avatar}`}
                 className={`avatar-option ${selectedAvatar === avatar ? 'selected' : ''}`}
                 onClick={() => setSelectedAvatar(avatar)}
                 alt="Avatar"
@@ -108,7 +114,13 @@ const Auth = ({ setCurrentUser }) => {
             <button 
               type="button" 
               className="auth-toggle"
-              onClick={() => setShowSignup(false)}
+              onClick={() => {
+                setShowSignup(false);
+                window.scrollTo({
+                  top: 0,
+                  behavior: 'smooth'
+                });
+              }}
             >
               Login
             </button>
