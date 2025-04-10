@@ -6,7 +6,7 @@ import './App.css';
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showUi, setShowUi] = useState(false); 
+  const [showUi, setShowUi] = useState(false);
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -21,10 +21,20 @@ function App() {
         setCurrentUser(null);
       }
       
+      // Check if this is the first visit
+      const hasVisited = localStorage.getItem('hasVisited');
+      const isFirstVisit = !hasVisited;
+      if (isFirstVisit) {
+        localStorage.setItem('hasVisited', 'true');
+      }
+
+      // Use different timing based on first visit
       setTimeout(() => {
         setLoading(false);
-        setShowUi(true);
-      }, 50);
+        setTimeout(() => {
+          setShowUi(true);
+        }, 100);
+      }, isFirstVisit ? 1000 : 200);
     };
     verifyAuth();
   }, []);
