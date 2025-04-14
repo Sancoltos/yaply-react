@@ -19,7 +19,11 @@ const io = new Server(server, {
 });
 
 
-app.use(cors());
+app.use(cors({
+    origin: ["http://localhost:3000", "https://yaply-zecq.onrender.com"],
+    methods: ["GET", "POST"],
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -53,15 +57,21 @@ app.post("/signup", async (req, res) => {
         const { username, password, avatar = 'default-avatar.png' } = req.body;
         
         if (!username || !password) {
+            console.log("Missing username or password");
             return res.status(400).json({ success: false, message: "Username and password required" });
         }
 
         if (users.has(username)) {
+            console.log("Username already taken:", username);
             return res.status(409).json({ success: false, message: "Username taken" });
         }
 
+        console.log("Hashing password for user:", username);
         const hashedPassword = await bcrypt.hash(password, 10);
+        console.log("Password hashed successfully");
+        
         users.set(username, { password: hashedPassword, avatar });
+        console.log("User created successfully:", username);
         
         res.status(201).json({ 
             success: true, 
@@ -71,7 +81,11 @@ app.post("/signup", async (req, res) => {
         });
     } catch (error) {
         console.error("Signup error:", error);
-        res.status(500).json({ success: false, message: "Server error" });
+        res.status(500).json({ 
+            success: false, 
+            message: "Server error",
+            error: error.message 
+        });
     }
 });
 
