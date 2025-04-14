@@ -46,9 +46,7 @@ if (!fs.existsSync(avatarDir)) {
 }
 
 // API routes
-const router = express.Router();
-
-router.post("/signup", async (req, res) => {
+app.post("/api/signup", async (req, res) => {
     console.log("Signup request received:", req.body);
     try {
         const { username, password, avatar = 'default-avatar.png' } = req.body;
@@ -86,7 +84,7 @@ router.post("/signup", async (req, res) => {
     }
 });
 
-router.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
     console.log("Login request received:", req.body);
     try {
         const { username, password } = req.body;
@@ -117,9 +115,6 @@ router.post("/login", async (req, res) => {
     }
 });
 
-// Mount API routes
-app.use("/api", router);
-
 // Socket.IO events
 io.on("connection", (socket) => {
     console.log("New client connected:", socket.id);
@@ -134,11 +129,9 @@ io.on("connection", (socket) => {
             avatar: data.avatar || 'default-avatar.png'
         });
         
-        // Broadcast updated online users list to all clients
         io.emit("update-online-users", Array.from(onlineUsers.entries()));
         console.log("Online users:", Array.from(onlineUsers.entries()));
         
-        // Send initial messages for the current channel
         socket.emit("channelMessages", channels[currentChannel]);
     });
 
@@ -146,7 +139,6 @@ io.on("connection", (socket) => {
         console.log("User disconnected:", currentUser);
         if (currentUser) {
             onlineUsers.delete(currentUser);
-            // Broadcast updated online users list to all clients
             io.emit("update-online-users", Array.from(onlineUsers.entries()));
         }
     });
@@ -181,7 +173,6 @@ io.on("connection", (socket) => {
         channels[message.channel].push(newMessage);
         console.log("Message added to channel. Current messages:", channels[message.channel]);
 
-        // Broadcast the new message to all connected clients
         io.emit("newMessage", newMessage);
         console.log("Message broadcasted to all clients");
     });
@@ -191,7 +182,7 @@ io.on("connection", (socket) => {
 app.use(express.static(path.join(__dirname, '../build')));
 
 // Handle React routing, return all requests to React app
-app.get("*", (req, res) => {
+app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
