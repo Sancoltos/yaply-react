@@ -20,7 +20,8 @@ const io = new Server(server, {
     cors: corsOptions,
     transports: ['websocket', 'polling'],
     pingTimeout: 60000,
-    pingInterval: 25000
+    pingInterval: 25000,
+    allowEIO3: true
 });
 
 app.use(cors(corsOptions));
@@ -121,6 +122,7 @@ app.use("/api", router);
 
 // Socket.IO events
 io.on("connection", (socket) => {
+    console.log("New client connected:", socket.id);
     let currentUser = null;
     let currentChannel = 'general';
 
@@ -131,9 +133,12 @@ io.on("connection", (socket) => {
             socketId: socket.id,
             avatar: data.avatar || 'default-avatar.png'
         });
-        io.emit("update-online-users", Array.from(onlineUsers.entries()));
         
-        console.log("Sending initial messages for channel:", currentChannel);
+        // Broadcast updated online users list to all clients
+        io.emit("update-online-users", Array.from(onlineUsers.entries()));
+        console.log("Online users:", Array.from(onlineUsers.entries()));
+        
+        // Send initial messages for the current channel
         socket.emit("channelMessages", channels[currentChannel]);
     });
 
@@ -141,6 +146,7 @@ io.on("connection", (socket) => {
         console.log("User disconnected:", currentUser);
         if (currentUser) {
             onlineUsers.delete(currentUser);
+            // Broadcast updated online users list to all clients
             io.emit("update-online-users", Array.from(onlineUsers.entries()));
         }
     });
@@ -175,8 +181,9 @@ io.on("connection", (socket) => {
         channels[message.channel].push(newMessage);
         console.log("Message added to channel. Current messages:", channels[message.channel]);
 
-        console.log("Broadcasting message to all clients");
+        // Broadcast the new message to all connected clients
         io.emit("newMessage", newMessage);
+        console.log("Message broadcasted to all clients");
     });
 });
 

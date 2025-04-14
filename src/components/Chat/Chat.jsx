@@ -16,10 +16,17 @@ const Chat = ({ currentUser, onLogout }) => {
 
   useEffect(() => {
     console.log('Initializing socket connection');
-    socketRef.current = io('http://localhost:3001', {
-      transports: ['websocket'],
+    const socketUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://yaply-zecq.onrender.com'
+      : 'http://localhost:3001';
+    
+    socketRef.current = io(socketUrl, {
+      transports: ['websocket', 'polling'],
       reconnection: true,
-      reconnectionAttempts: 5
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000
     });
     
     console.log('Emitting user-connected event');
