@@ -115,6 +115,14 @@ app.post("/api/login", async (req, res) => {
     }
 });
 
+// Serve static files from the React build directory
+app.use(express.static(path.join(__dirname, '../build')));
+
+// Handle React routing
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+});
+
 // Socket.IO events
 io.on("connection", (socket) => {
     console.log("New client connected:", socket.id);
@@ -176,14 +184,6 @@ io.on("connection", (socket) => {
         io.emit("newMessage", newMessage);
         console.log("Message broadcasted to all clients");
     });
-});
-
-// Serve static files from the React build directory
-app.use(express.static(path.join(__dirname, '../build')));
-
-// Handle React routing, return all requests to React app
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3001;
