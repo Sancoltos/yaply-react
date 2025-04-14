@@ -36,13 +36,21 @@ const Auth = ({ setCurrentUser }) => {
     }
 
     try {
-      const endpoint = isLogin ? '/api/login' : '/api/signup';
+      const baseUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://yaply-zecq.onrender.com' 
+        : '';
+      const endpoint = `${baseUrl}/api${isLogin ? '/login' : '/signup'}`;
+      
+      console.log('Making request to:', endpoint); // Debug log
+      
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(isLogin ? data : { ...data, avatar: selectedAvatar })
       });
 
+      console.log('Response status:', response.status); // Debug log
+      
       const result = await response.json();
       
       if (response.ok) {
@@ -53,6 +61,7 @@ const Auth = ({ setCurrentUser }) => {
         alert(result.message || (isLogin ? 'Login failed' : 'Signup failed'));
       }
     } catch (error) {
+      console.error('Auth error:', error); // Debug log
       alert('Network error - please try again');
     }
   };

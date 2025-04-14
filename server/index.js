@@ -8,31 +8,32 @@ const fs = require("fs");
 
 const app = express();
 const server = http.createServer(app);
+
+// CORS configuration
+const corsOptions = {
+    origin: ["http://localhost:3000", "https://yaply-zecq.onrender.com"],
+    methods: ["GET", "POST"],
+    credentials: true
+};
+
 const io = new Server(server, {
-    cors: {
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST"]
-    },
+    cors: corsOptions,
     transports: ['websocket', 'polling'],
     pingTimeout: 60000,
     pingInterval: 25000
 });
 
-
-app.use(cors({
-    origin: ["http://localhost:3000", "https://yaply-zecq.onrender.com"],
-    methods: ["GET", "POST"],
-    credentials: true
-}));
+app.use(cors(corsOptions));
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
 
+// Serve static files from the React build directory
+app.use(express.static(path.join(__dirname, '../build')));
 
-app.use((req, res, next) => {
+// API routes
+app.use('/api', (req, res, next) => {
     console.log(`${req.method} ${req.url}`);
     next();
 });
-
 
 const users = new Map();
 const channels = {
@@ -41,7 +42,6 @@ const channels = {
     novels: [], fashion: [], announcement: [], advertising: [], programming: []
 };
 const onlineUsers = new Map();
-
 
 const avatarDir = path.join(__dirname, '../public/avatars');
 if (!fs.existsSync(avatarDir)) {
@@ -179,6 +179,11 @@ io.on("connection", (socket) => {
         console.log("Broadcasting message to all clients");
         io.emit("newMessage", newMessage);
     });
+});
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3001;
