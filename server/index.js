@@ -29,12 +29,7 @@ app.use(express.json());
 // Serve static files from the React build directory
 app.use(express.static(path.join(__dirname, '../build')));
 
-// API routes
-app.use('/api', (req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    next();
-});
-
+// Initialize data structures
 const users = new Map();
 const channels = {
     general: [], sports: [], "video-games": [], "deep-talks": [],
@@ -43,6 +38,7 @@ const channels = {
 };
 const onlineUsers = new Map();
 
+// Initialize avatar directory
 const avatarDir = path.join(__dirname, '../public/avatars');
 if (!fs.existsSync(avatarDir)) {
     fs.mkdirSync(avatarDir, { recursive: true });
@@ -51,7 +47,8 @@ if (!fs.existsSync(avatarDir)) {
     }));
 }
 
-app.post("/signup", async (req, res) => {
+// API routes
+app.post("/api/signup", async (req, res) => {
     console.log("Signup request received:", req.body);
     try {
         const { username, password, avatar = 'default-avatar.png' } = req.body;
@@ -89,7 +86,7 @@ app.post("/signup", async (req, res) => {
     }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
     console.log("Login request received:", req.body);
     try {
         const { username, password } = req.body;
@@ -120,6 +117,7 @@ app.post("/login", async (req, res) => {
     }
 });
 
+// Socket.IO events
 io.on("connection", (socket) => {
     let currentUser = null;
     let currentChannel = 'general';
@@ -175,14 +173,13 @@ io.on("connection", (socket) => {
         channels[message.channel].push(newMessage);
         console.log("Message added to channel. Current messages:", channels[message.channel]);
 
-        
         console.log("Broadcasting message to all clients");
         io.emit("newMessage", newMessage);
     });
 });
 
 // Handle React routing, return all requests to React app
-app.get('*', (req, res) => {
+app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
