@@ -26,9 +26,6 @@ const io = new Server(server, {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Serve static files from the React build directory
-app.use(express.static(path.join(__dirname, '../build')));
-
 // Initialize data structures
 const users = new Map();
 const channels = {
@@ -48,7 +45,9 @@ if (!fs.existsSync(avatarDir)) {
 }
 
 // API routes
-app.post("/api/signup", async (req, res) => {
+const router = express.Router();
+
+router.post("/signup", async (req, res) => {
     console.log("Signup request received:", req.body);
     try {
         const { username, password, avatar = 'default-avatar.png' } = req.body;
@@ -86,7 +85,7 @@ app.post("/api/signup", async (req, res) => {
     }
 });
 
-app.post("/api/login", async (req, res) => {
+router.post("/login", async (req, res) => {
     console.log("Login request received:", req.body);
     try {
         const { username, password } = req.body;
@@ -116,6 +115,9 @@ app.post("/api/login", async (req, res) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 });
+
+// Mount API routes
+app.use("/api", router);
 
 // Socket.IO events
 io.on("connection", (socket) => {
@@ -177,6 +179,9 @@ io.on("connection", (socket) => {
         io.emit("newMessage", newMessage);
     });
 });
+
+// Serve static files from the React build directory
+app.use(express.static(path.join(__dirname, '../build')));
 
 // Handle React routing, return all requests to React app
 app.get("*", (req, res) => {
