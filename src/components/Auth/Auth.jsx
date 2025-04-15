@@ -38,7 +38,7 @@ const Auth = ({ setCurrentUser }) => {
     try {
       const baseUrl = process.env.NODE_ENV === 'production' 
         ? 'https://yaply-zecq.onrender.com' 
-        : '';
+        : 'http://localhost:3001';
       const endpoint = `${baseUrl}/api${isLogin ? '/login' : '/signup'}`;
       
       console.log('Making request to:', endpoint); // Debug log
