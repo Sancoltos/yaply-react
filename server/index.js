@@ -134,11 +134,13 @@ io.on("connection", (socket) => {
             avatar: data.avatar || 'default-avatar.png'
         });
         
+        // Send the current online users list to the new user
+        socket.emit("update-online-users", Array.from(onlineUsers.entries()));
+        
         // Broadcast updated online users list to all clients
         io.emit("update-online-users", Array.from(onlineUsers.entries()));
         console.log("Online users:", Array.from(onlineUsers.entries()));
         
-        // Send initial messages for the current channel
         socket.emit("channelMessages", channels[currentChannel]);
     });
 

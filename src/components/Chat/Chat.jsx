@@ -69,6 +69,13 @@ const Chat = ({ currentUser, onLogout }) => {
   }, [currentUser, userAvatar, currentChannel]);
 
   useEffect(() => {
+    if (socketRef.current) {
+      console.log('Channel changed, joining new channel:', currentChannel);
+      socketRef.current.emit('joinChannel', currentChannel);
+    }
+  }, [currentChannel]);
+
+  useEffect(() => {
     if (isInitialLoad) {
       console.log('Initial load, scrolling to bottom');
       setTimeout(() => {
