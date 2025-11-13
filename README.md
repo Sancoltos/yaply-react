@@ -1,16 +1,44 @@
-Hello and welcome the Yaply Instant Browser Messager App
+# 🚀 Welcome to **Yaply — Instant Browser Messenger**
 
-Yaply is a effienct, low ram usage easy to navigate application with annon in mind
-No email, phone number, name or data needed. Just select a username and avatar and your
-done
+**Yaply** is an efficient, low-RAM, easy-to-navigate messaging application built with **anonymity first** in mind.  
+No email, no phone number, no name, no personal data — ever.  
+Simply choose a **username** and an **avatar**, and you're good to go.
 
-to get started its very simple
+---
 
-Please open up two terminals in your 1st terminal please cd into server or type node server/index.js
-This will start the server
+## ⚡ Key Features
 
-then in the second terminal from the root directory right npm start to start the developement server
+- **Anonymous by Design**  
+  No personal information or verification required.
 
-once you have done this the app should start up nicely
+- **Lightweight & Fast**  
+  Minimal RAM usage, smooth performance, instant load times.
 
-Thanks and Happy messaging
+- **Simple, Clean Interface**  
+  No clutter — easy for anyone to use.
+
+- **Privacy-Focused**  
+  No tracking, no logging, no stored conversations.
+
+- **Instant Browser Access**  
+  No installation needed.
+
+---
+
+## 🔧 Getting Started (Development Mode)
+
+Follow these steps to run Yaply locally.
+
+### **1️⃣ Start the Server**
+
+1. Open your **first terminal**.  
+2. Navigate into the server directory:
+
+   ```bash
+   cd server
+node index.js
+
+### ** 2️⃣ Start the Client **
+
+npm start
+
